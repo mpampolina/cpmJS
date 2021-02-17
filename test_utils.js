@@ -1,10 +1,10 @@
 const { Cpm, Activity } = require("./cpm.js");
 
-const testActivities3 = [
+const testActivities2 = [
   new Activity("X", 3),
   new Activity("A", 5, ["X"]),
   new Activity("B", 3, ["X"]),
-  new Activity("C", 7, ["A", "B"]),
+  new Activity("C", 7, ["B", "A",]),
 ];
 
 const testActivities1 = [
@@ -93,7 +93,48 @@ const testResults1 = [
   },
 ];
 
+const testResults2 = [
+  {
+    id: "X",
+    duration: 3,
+    predecessor: [],
+    es: 0,
+    ef: 3,
+    ls: 0,
+    lf: 3,
+  },
+  {
+    id: "B",
+    duration: 3,
+    predecessor: ["X"],
+    es: 3,
+    ef: 6,
+    ls: 5,
+    lf: 8,
+  },
+  {
+    id: "A",
+    duration: 5,
+    predecessor: ["X"],
+    es: 3,
+    ef: 8,
+    ls: 3,
+    lf: 8,
+  },
+  {
+    id: "C",
+    duration: 7,
+    predecessor: ["B", "A"],
+    es: 8,
+    ef: 15,
+    ls: 8,
+    lf: 15,
+  },
+];
+
 module.exports = {
   testResults1,
+  testResults2,
   testActivities1,
+  testActivities2,
 };

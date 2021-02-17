@@ -24,10 +24,11 @@ class Cpm {
    * @param {Activity[]} activities - an array of preceeding activities
    */
   forwardPass(root, activities) {
+    if (root.predecessor.length === 0 && root.ef !== undefined) return root.ef
     if (root.predecessor.length === 0) {
       root.es = 0;
       root.ef = root.es + root.duration;
-      return root.duration;
+      return root.ef;
     }
     let earliestStart = 0;
 
@@ -44,7 +45,7 @@ class Cpm {
     root.es = earliestStart;
     root.ef = root.es + root.duration;
 
-    return earliestStart + root.duration;
+    return root.ef;
   }
 
   /**
@@ -75,6 +76,8 @@ class Cpm {
         root.ls
       );
     }
+
+    return;
   }
 
   /**
@@ -115,15 +118,13 @@ class Cpm {
   root(activities) {
     const uniquepredecessor = activities.reduce((accumulator, activity) => {
       activity.predecessor.forEach((predessor) => {
-        if (accumulator.indexOf(predessor) === -1) {
-          accumulator.push(predessor);
-        }
+        accumulator.add(predessor)
       });
       return accumulator;
-    }, []);
+    }, new Set());
 
     const root = activities.find((activity) => {
-      return uniquepredecessor.indexOf(activity.id) === -1;
+      return !uniquepredecessor.has(activity.id);
     });
 
     return root;
