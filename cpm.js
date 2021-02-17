@@ -15,6 +15,15 @@ class Activity {
 }
 
 class Cpm {
+
+  /**
+   * @param {Activity[]} activities - an array of activities to be
+   * performed in a given project
+   */
+  constructor(activities) {
+    this.activities = _.cloneDeep(activities);
+  }
+
   /**
    * Perform a forward pass of the activity tree and assign
    * early start (es) and early finish (ef) properties to each
@@ -81,51 +90,35 @@ class Cpm {
   }
 
   /**
-   * Runs the CPM algorithm, assigning early start (ef), early
-   * finish (ef), late start (ls), late finish (lf) properties
-   * to each activity in a given array. The activites are sorted in
+   * Runs the CPM algorithm, assigning early start (es), early
+   * finish (ef), late start (ls), late finish (lf), total float (tf),
+   * free float (ff), and critical (boolean) properties to each 
+   * activity in the activities array. The activites are sorted in
    * ascending order based on latest finishing time.
-   * @param {Activity[]} activities - an array of activities to be
-   * performed in a given project
    */
-  run(activities) {
-    let localActivities = _.cloneDeep(activities);
-    const localActivitiesRoot = this.root(localActivities);
-    const earlyFinish = this.forwardPass(localActivitiesRoot, localActivities);
-    this.backwardPass(localActivitiesRoot, localActivities, earlyFinish);
-    this.activitySort(localActivities);
-    this.retrieveImmmediateSuccessors(localActivitiesRoot, localActivities);
-    this.calculateFloat(localActivities, localActivitiesRoot, earlyFinish);
-    return localActivities;
-  }
-
-  /**
-   * Returns the earliest finish date for a given project.
-   * @param {Activity[]} activities - an array of activities to be
-   * performed in a given project
-   */
-  earlyFinish(activities) {
-    let localActivities = _.cloneDeep(activities);
-    const localActivitiesRoot = this.root(localActivities);
-    const earlyFinish = this.forwardPass(localActivitiesRoot, localActivities);
-    return earlyFinish;
+  run() {
+    this.root = this.getRoot();
+    this.earlyFinish = this.forwardPass(this.root, this.activities);
+    this.backwardPass(this.root, this.activities, this.earlyFinish);
+    this.activitySort(this.activities);
+    this.retrieveImmmediateSuccessors(this.root, this.activities);
+    this.calculateFloat();
+    return this.activities;
   }
 
   /**
    * Retrieves the root activity for a project, defined as the activity for
    * which there are no further successors.
-   * @param {Activity[]} activities - an array of activities to be
-   * performed in a given project
    */
-  root(activities) {
-    const uniquepredecessor = activities.reduce((accumulator, activity) => {
+  getRoot() {
+    const uniquepredecessor = this.activities.reduce((accumulator, activity) => {
       activity.predecessor.forEach((predecessor) => {
         accumulator.add(predecessor);
       });
       return accumulator;
     }, new Set());
 
-    const root = activities.find((activity) => {
+    const root = this.activities.find((activity) => {
       return !uniquepredecessor.has(activity.id);
     });
 
@@ -196,23 +189,18 @@ class Cpm {
    * and whether or the activity falls on the critical path (boolean).
    * Assign these values to their respective activities. Modifies the
    * activity array in-place.
-   * @param {Activity[]} activites - an array of activities to be
-   * performed in a given project
-   * @param {Activity} root - the final/last activity to be performed
-   * @param {number} duration - the latest finishing time for the project,
-   * usually set to be equivalent to the earliest finishing time for the project
    */
-  calculateFloat(activites, root, duration) {
-    for (const currentActivity of activites) {
+  calculateFloat() {
+    for (const currentActivity of this.activities) {
       currentActivity.tf = currentActivity.lf - currentActivity.ef;
       /* Since all successors should have the same early start,
       we can grab a successor of the current activity.  */
-      const aSuccessor = activites.find(
+      const aSuccessor = this.activities.find(
         (activity) => activity.id === currentActivity.successor[0]
       );
 
-      if (currentActivity === root) {
-        currentActivity.ff = duration - currentActivity.ef;
+      if (currentActivity === this.root) {
+        currentActivity.ff = this.earlyFinish - currentActivity.ef;
       } else {
         const destNodeES = aSuccessor.es;
         currentActivity.ff = destNodeES - currentActivity.ef;
