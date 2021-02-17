@@ -4,7 +4,7 @@ const testActivities2 = [
   new Activity("X", 3),
   new Activity("A", 5, ["X"]),
   new Activity("B", 3, ["X"]),
-  new Activity("C", 7, ["B", "A",]),
+  new Activity("C", 7, ["B", "A"]),
 ];
 
 const testActivities1 = [
@@ -27,6 +27,10 @@ const testResults1 = [
     ef: 3,
     ls: 0,
     lf: 3,
+    successor: ["C", "D"],
+    tf: 0,
+    ff: 0,
+    critical: true,
   },
   {
     id: "B",
@@ -36,6 +40,10 @@ const testResults1 = [
     ef: 3,
     ls: 0,
     lf: 3,
+    successor: ["C", "D"],
+    tf: 0,
+    ff: 0,
+    critical: true,
   },
   {
     id: "C",
@@ -45,6 +53,10 @@ const testResults1 = [
     ef: 6,
     ls: 3,
     lf: 6,
+    successor: ["F", "E"],
+    tf: 0,
+    ff: 0,
+    critical: true,
   },
   {
     id: "D",
@@ -54,6 +66,10 @@ const testResults1 = [
     ef: 7,
     ls: 6,
     lf: 10,
+    successor: ["G"],
+    tf: 3,
+    ff: 2,
+    critical: false,
   },
   {
     id: "E",
@@ -63,15 +79,10 @@ const testResults1 = [
     ef: 9,
     ls: 7,
     lf: 10,
-  },
-  {
-    id: "F",
-    duration: 6,
-    predecessor: ["C"],
-    es: 6,
-    ef: 12,
-    ls: 6,
-    lf: 12,
+    successor: ["G"],
+    tf: 1,
+    ff: 0,
+    critical: false,
   },
   {
     id: "G",
@@ -81,6 +92,23 @@ const testResults1 = [
     ef: 11,
     ls: 10,
     lf: 12,
+    successor: ["H"],
+    tf: 1,
+    ff: 1,
+    critical: false,
+  },
+  {
+    id: "F",
+    duration: 6,
+    predecessor: ["C"],
+    es: 6,
+    ef: 12,
+    ls: 6,
+    lf: 12,
+    successor: ["H"],
+    tf: 0,
+    ff: 0,
+    critical: true,
   },
   {
     id: "H",
@@ -90,6 +118,10 @@ const testResults1 = [
     ef: 17,
     ls: 12,
     lf: 17,
+    successor: [],
+    tf: 0,
+    ff: 0,
+    critical: true,
   },
 ];
 
@@ -102,6 +134,10 @@ const testResults2 = [
     ef: 3,
     ls: 0,
     lf: 3,
+    successor: ["B", "A"],
+    tf: 0,
+    ff: 0,
+    critical: true,
   },
   {
     id: "B",
@@ -111,6 +147,10 @@ const testResults2 = [
     ef: 6,
     ls: 5,
     lf: 8,
+    successor: ["C"],
+    tf: 2,
+    ff: 2,
+    critical: false,
   },
   {
     id: "A",
@@ -120,6 +160,10 @@ const testResults2 = [
     ef: 8,
     ls: 3,
     lf: 8,
+    successor: ["C"],
+    tf: 0,
+    ff: 0,
+    critical: true,
   },
   {
     id: "C",
@@ -129,6 +173,10 @@ const testResults2 = [
     ef: 15,
     ls: 8,
     lf: 15,
+    successor: [],
+    tf: 0,
+    ff: 0,
+    critical: true,
   },
 ];
 

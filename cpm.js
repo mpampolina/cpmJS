@@ -24,7 +24,7 @@ class Cpm {
    * @param {Activity[]} activities - an array of preceeding activities
    */
   forwardPass(root, activities) {
-    if (root.predecessor.length === 0 && root.ef !== undefined) return root.ef
+    if (root.predecessor.length === 0 && root.ef !== undefined) return root.ef;
     if (root.predecessor.length === 0) {
       root.es = 0;
       root.ef = root.es + root.duration;
@@ -94,6 +94,8 @@ class Cpm {
     const earlyFinish = this.forwardPass(localActivitiesRoot, localActivities);
     this.backwardPass(localActivitiesRoot, localActivities, earlyFinish);
     this.activitySort(localActivities);
+    this.retrieveImmmediateSuccessors(localActivitiesRoot, localActivities);
+    this.calculateFloat(localActivities, localActivitiesRoot, earlyFinish);
     return localActivities;
   }
 
@@ -117,8 +119,8 @@ class Cpm {
    */
   root(activities) {
     const uniquepredecessor = activities.reduce((accumulator, activity) => {
-      activity.predecessor.forEach((predessor) => {
-        accumulator.add(predessor)
+      activity.predecessor.forEach((predecessor) => {
+        accumulator.add(predecessor);
       });
       return accumulator;
     }, new Set());
@@ -158,6 +160,65 @@ class Cpm {
     }
 
     return root;
+  }
+
+  /**
+   * Retrieves immediate successors for each activity in activity array
+   * and assigns their IDs to the "successor" property of a given activity.
+   * Modifies the activity array in place.
+   * @param {Activity} root - the final/last activity to be performed
+   * @param {Activity[]} activites - an array of activities to be
+   * performed in a given project
+   * @param {string} successorID - an identifier of the current successor
+   */
+  retrieveImmmediateSuccessors(root, activites, successorID = null) {
+    if (root.successor === undefined) {
+      root.successor = [];
+    }
+    if (successorID && root.successor.indexOf(successorID) === -1) {
+      root.successor.push(successorID);
+    }
+    if (root.predecessor.length === 0) return;
+
+    for (const id of root.predecessor) {
+      this.retrieveImmmediateSuccessors(
+        activites.find((activity) => activity.id === id),
+        activites,
+        root.id
+      );
+    }
+
+    return;
+  }
+
+  /**
+   * For each activity, calculate the total float (tf), free float (ff),
+   * and whether or the activity falls on the critical path (boolean).
+   * Assign these values to their respective activities. Modifies the
+   * activity array in-place.
+   * @param {Activity[]} activites - an array of activities to be
+   * performed in a given project
+   * @param {Activity} root - the final/last activity to be performed
+   * @param {number} duration - the latest finishing time for the project,
+   * usually set to be equivalent to the earliest finishing time for the project
+   */
+  calculateFloat(activites, root, duration) {
+    for (const currentActivity of activites) {
+      currentActivity.tf = currentActivity.lf - currentActivity.ef;
+      /* Since all successors should have the same early start,
+      we can grab a successor of the current activity.  */
+      const aSuccessor = activites.find(
+        (activity) => activity.id === currentActivity.successor[0]
+      );
+
+      if (currentActivity === root) {
+        currentActivity.ff = duration - currentActivity.ef;
+      } else {
+        const destNodeES = aSuccessor.es;
+        currentActivity.ff = destNodeES - currentActivity.ef;
+      }
+      currentActivity.critical = currentActivity.tf === 0 ? true : false;
+    }
   }
 
   /**
