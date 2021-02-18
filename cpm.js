@@ -15,7 +15,6 @@ class Activity {
 }
 
 class Cpm {
-
   /**
    * @param {Activity[]} activities - an array of activities to be
    * performed in a given project
@@ -92,7 +91,7 @@ class Cpm {
   /**
    * Runs the CPM algorithm, assigning early start (es), early
    * finish (ef), late start (ls), late finish (lf), total float (tf),
-   * free float (ff), and critical (boolean) properties to each 
+   * free float (ff), and critical (boolean) properties to each
    * activity in the activities array. The activites are sorted in
    * ascending order based on latest finishing time.
    */
@@ -111,12 +110,15 @@ class Cpm {
    * which there are no further successors.
    */
   getRoot() {
-    const uniquepredecessor = this.activities.reduce((accumulator, activity) => {
-      activity.predecessor.forEach((predecessor) => {
-        accumulator.add(predecessor);
-      });
-      return accumulator;
-    }, new Set());
+    const uniquepredecessor = this.activities.reduce(
+      (accumulator, activity) => {
+        activity.predecessor.forEach((predecessor) => {
+          accumulator.add(predecessor);
+        });
+        return accumulator;
+      },
+      new Set()
+    );
 
     const root = this.activities.find((activity) => {
       return !uniquepredecessor.has(activity.id);
